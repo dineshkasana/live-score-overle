@@ -37,7 +37,8 @@ async function act(team, action) {
   next.teams[team].score = Math.max(0, Number(next.teams[team].score || 0) + points);
   const idx = Number(next.activePlayer[team] || 0);
   if (next.teams[team].players[idx]) next.teams[team].players[idx].points = Number(next.teams[team].players[idx].points || 0) + points;
-  const labels = {raid:"Raid",bonus:"Bonus",tackle:"Tackle",super:"Super tackle",allout:"All out"};
+  const labels = {raid:"RAID",bonus:"BONUS",tackle:"TACKLE",super:"SUPER TACKLE",allout:"ALL OUT"};
+  next.lastEvent = { team, teamName: next.teams[team].name, action: labels[action], points, at: Date.now() };
   await save(next, `${next.teams[team].name}: ${labels[action]} +${points}`, true);
 }
 async function loadMatch(id) {
@@ -161,6 +162,14 @@ $("raidStart").addEventListener("click",()=>clockAction("raid","start"));
 $("raidPause").addEventListener("click",()=>clockAction("raid","pause"));
 $("raidReset").addEventListener("click",()=>clockAction("raid","reset"));
 $("halfBtn").addEventListener("click",async()=>{const next=clone(state);next.match.half=Number(next.match.half||1)===1?2:1;await save(next,`Switched to half ${next.match.half}`,true);});
+$("swapTeamsBtn").addEventListener("click",async()=>{
+  if(!state)return;
+  if(!confirm("Swap Team A and Team B sides? Names, scores, colors, logos, player points and timeouts will move together."))return;
+  const next=clone(state);const tmp=next.teams.A;next.teams.A=next.teams.B;next.teams.B=tmp;
+  const active=next.activePlayer||{A:0,B:0};next.activePlayer={A:Number(active.B||0),B:Number(active.A||0)};
+  next.lastEvent={team:"",teamName:"TEAMS SWAPPED",action:"SIDE SWITCH",points:0,at:Date.now()};
+  await save(next,"Swapped team sides",true);status("Teams swapped; team details stayed together.","success");
+});
 $("statusBtn").addEventListener("click",async()=>{const next=clone(state);next.match.status=next.match.status==="LIVE"?"READY":"LIVE";await save(next,`Match status ${next.match.status}`,true);$("statusBtn").textContent=next.match.status==="LIVE"?"Mark Match READY":"Mark Match LIVE";});
 $("undoBtn").addEventListener("click",async()=>{
   const h=state?.history||[]; if(!h.length){status("Nothing to undo.");return;}
