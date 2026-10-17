@@ -1,0 +1,12 @@
+{
+  "name": "palwas-kabaddi-scoreboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Custom live kabaddi scoreboard with Firebase sync and transparent overlay",
+  "scripts": {
+    "deploy": "firebase deploy"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.29.2"
+  }
+}
