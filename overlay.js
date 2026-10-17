@@ -8,7 +8,12 @@ function left(kind){if(!state)return 0;const m=state.match||{};const isRaid=kind
 function logo(id,url,letter){const el=$(id);if(url){el.innerHTML=`<img src="${String(url).replace(/"/g,"&quot;")}" alt="">`;}else{el.textContent=letter;}}
 function render(){if(!state)return;const t=state.teams||{},a=t.A||{},b=t.B||{},m=state.match||{},meta=state.meta||{};
 $("league").textContent=meta.leagueName||"PALWAS KABADDI LEAGUE";$("matchTitle").textContent=meta.matchTitle||"MATCH 01";$("venue").textContent=meta.venue||"";
-$("nameA").textContent=a.name||"TEAM A";$("nameB").textContent=b.name||"TEAM B";
+$("nameA").textContent=a.name||"TEAM A";$("nameA").parentElement.parentElement.style.setProperty(
+  "--team-color", a.color || "#e13a43"
+);
+$("nameB").parentElement.parentElement.style.setProperty(
+  "--team-color", b.color || "#2474e8"
+);$("nameB").textContent=b.name||"TEAM B";
 const sideA=document.querySelector(".side-a"),sideB=document.querySelector(".side-b");
 if(sideA)sideA.style.background=a.color||"#e13a43";if(sideB)sideB.style.background=b.color||"#2474e8";$("scoreA").textContent=String(Number(a.score||0)).padStart(2,"0");$("scoreB").textContent=String(Number(b.score||0)).padStart(2,"0");
 $("timeoutA").textContent=`TIMEOUTS ${Number(a.timeouts||0)}`;$("timeoutB").textContent=`TIMEOUTS ${Number(b.timeouts||0)}`;
