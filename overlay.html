@@ -1,21 +1,26 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Palwas Kabaddi League Overlay</title><link rel="stylesheet" href="overlay.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Palwas Kabaddi League - Live Overlay</title>
+<link rel="stylesheet" href="overlay.css">
 </head>
 <body>
-  <main id="scorebug" class="scorebug">
-    <div class="topline"><span id="league">PALWAS KABADDI LEAGUE</span><span id="liveBadge"><i></i> LIVE</span></div>
-    <div class="mainbar">
-      <section class="side side-a"><div class="logo" id="logoA">A</div><div class="team-text"><div id="nameA" class="team-name">PALWAS WARRIORS</div><div id="timeoutA" class="timeout">TIMEOUTS 0</div></div><div id="scoreA" class="score">00</div></section>
-      <section class="center"><div id="matchClock" class="match-clock">20:00</div><div id="half" class="half">1ST HALF</div><div id="raidClock" class="raid-clock">RAID 30</div></section>
-      <section class="side side-b"><div id="scoreB" class="score">00</div><div class="team-text"><div id="nameB" class="team-name">RAMSAGAR RAIDERS</div><div id="timeoutB" class="timeout">TIMEOUTS 0</div></div><div class="logo" id="logoB">B</div></section>
+<main class="scorebug" aria-label="Live Kabaddi scoreboard">
+  <div class="topline"><span id="league">PALWAS KABADDI LEAGUE</span><span id="liveBadge" style="display:none"><i></i> LIVE</span></div>
+  <section class="mainbar">
+    <div class="side side-a" id="sideA">
+      <div class="logo" id="logoA">A</div><div class="team-text"><div class="team-name" id="nameA">TEAM A</div><div class="timeout" id="timeoutA">TIMEOUTS 0</div></div>
+      <div class="score" id="scoreA">00</div><div class="point-event" id="pointA" aria-live="polite"></div>
     </div>
-    <div id="pointEvent" class="point-event" aria-live="polite"></div>
-    <div class="bottomline"><span id="matchTitle">MATCH 01</span><span id="venue">PALWAS</span><span id="status">READY</span></div>
-    <div id="overlayError" class="error">Waiting for scoreboard connection…</div>
-  </main>
-  <script type="module" src="overlay.js"></script>
-</body>
-</html>
+    <div class="center"><div class="match-clock" id="matchClock">20:00</div><div class="half" id="half">1ST HALF</div><div class="raid-clock" id="raidClock">RAID 30</div></div>
+    <div class="side side-b" id="sideB">
+      <div class="score" id="scoreB">00</div><div class="team-text"><div class="team-name" id="nameB">TEAM B</div><div class="timeout" id="timeoutB">TIMEOUTS 0</div></div>
+      <div class="logo" id="logoB">B</div><div class="point-event" id="pointB" aria-live="polite"></div>
+    </div>
+  </section>
+  <div class="bottomline"><span id="matchTitle">MATCH 01</span><span id="venue"></span><span id="status">READY</span></div>
+  <div id="overlayError" class="error" role="status"></div>
+</main>
+<script type="module" src="overlay.js"></script>
+</body></html>
