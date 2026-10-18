@@ -5,76 +5,81 @@
   <title>PKL Admin Control</title><link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="app-header"><div class="header-brand"><div class="mini-mark">PKL</div><div><strong>PALWAS KABADDI LEAGUE</strong><span>ADMIN CONTROL ROOM</span></div></div><div class="header-actions"><span id="connection" class="pill">CONNECTING</span><button id="logoutBtn" class="btn-small hidden">Logout</button></div></header>
+  <header class="app-header"><div class="header-brand"><div class="mini-mark">PKL</div><div><strong>PALWAS KABADDI LEAGUE</strong><span>ADMIN CONTROL ROOM</span></div></div><div class="header-actions"><span id="connection" class="pill">CONNECTING</span><button id="logoutBtn" class="btn-small hidden" type="button">Logout</button></div></header>
   <main class="wrap">
     <section id="setupWarning" class="panel hidden"><h2 class="section-title">Firebase setup required</h2><p class="help">Fill in firebase-config.js, enable Email/Password Authentication and Realtime Database, and publish database.rules.json. Read README.md.</p></section>
     <section id="loginPanel" class="panel login-box hidden">
       <p class="eyebrow">PRIVATE ADMIN ACCESS</p><h1 class="section-title">Sign in to control the match</h1>
       <label for="email">Admin email</label><input id="email" type="email" autocomplete="username" placeholder="admin@example.com">
       <div style="height:10px"></div><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Your Firebase Auth password">
-      <div style="height:12px"></div><button id="loginBtn" class="btn-gold wide">Sign in</button><p id="loginMessage" class="status-line"></p>
+      <div style="height:12px"></div><button id="loginBtn" class="btn-gold wide" type="button">Sign in</button><p id="loginMessage" class="status-line"></p>
       <p class="help">Create the admin user yourself in Firebase Console → Authentication → Users. Never put the password in a code file.</p>
     </section>
     <div id="adminApp" class="hidden">
       <section class="panel">
         <div class="panel-head"><h2 class="section-title">Match setup</h2><span class="pill">LIVE SYNC</span></div>
         <div class="field-grid">
-          <div><label>League title</label><input id="leagueName" value="PALWAS KABADDI LEAGUE"></div>
-          <div><label>Match title</label><input id="matchTitle" value="MATCH 01"></div>
-          <div><label>Venue</label><input id="venue" value="PALWAS"></div>
-          <div><label>Match ID (same on overlay)</label><input id="matchId" value="pkl-final-2026-a7k3"></div>
+          <div><label for="leagueName">League title</label><input id="leagueName" value="PALWAS KABADDI LEAGUE"></div>
+          <div><label for="matchTitle">Match title</label><input id="matchTitle" value="MATCH 01"></div>
+          <div><label for="venue">Venue</label><input id="venue" value="PALWAS"></div>
+          <div><label for="matchId">Match ID (same on overlay)</label><input id="matchId" value="pkl-final-2026-a7k3"></div>
         </div>
-        <div style="height:10px"></div><button id="saveMetaBtn" class="btn-gold">Save match details</button>
+        <div style="height:10px"></div><button id="saveMetaBtn" class="btn-gold" type="button">Save match details</button>
         <p class="help">Changing Match ID switches which match is controlled. Use a hard-to-guess ID and keep the admin link private.</p>
       </section>
       <section class="grid-2">
         <div class="team-card" id="teamABox" style="--team-color:#e13a43">
-          <div class="team-head"><div id="logoA" class="team-initial">A</div><div style="min-width:0;flex:1"><label>Team A name</label><input id="nameA" value="PALWAS WARRIORS"></div></div>
-          <div class="field-grid" style="margin-top:10px"><div><label>Logo image URL (optional)</label><input id="logoUrlA" placeholder="https://..."></div><div><label>Team colour</label><input id="colorA" type="color" value="#e13a43"></div></div>
+          <div class="team-head"><div id="logoA" class="team-initial">A</div><div style="min-width:0;flex:1"><label for="nameA">Team A name</label><input id="nameA" value="PALWAS WARRIORS"></div></div>
+          <div class="field-grid" style="margin-top:10px"><div><label for="logoUrlA">Logo image URL (optional)</label><input id="logoUrlA" placeholder="https://..."></div><div><label for="colorA">Team colour</label><input id="colorA" type="color" value="#e13a43"></div></div>
           <div id="scoreA" class="score-big">0</div><div class="team-controls">
-            <button data-team="A" data-action="raid" class="btn-red">+1 Raid</button><button data-team="A" data-action="bonus" class="btn-gold">+1 Bonus</button>
-            <button data-team="A" data-action="tackle" class="btn-blue">+1 Tackle</button><button data-team="A" data-action="super" class="btn-blue">+2 Super Tackle</button>
-            <button data-team="A" data-action="allout" class="btn-red">+2 All Out</button><button data-team="A" data-action="timeout" class="btn-muted">Take Timeout</button>
+            <button data-team="A" data-action="raid" class="btn-red" type="button">+1 Raid</button><button data-team="A" data-action="bonus" class="btn-gold" type="button">+1 Bonus</button>
+            <button data-team="A" data-action="tackle" class="btn-blue" type="button">+1 Tackle</button><button data-team="A" data-action="super" class="btn-blue" type="button">+2 Super Tackle</button>
+            <button data-team="A" data-action="allout" class="btn-red" type="button">+2 All Out</button><button data-team="A" data-action="timeout" class="btn-muted" type="button">Take Timeout</button>
           </div>
           <div class="row between" style="margin-top:12px"><span class="muted small">Active player for scoring</span><span id="timeoutsA" class="pill">TIMEOUTS 0</span></div>
           <select id="activeA" style="margin-top:7px"></select>
           <div class="player-list" id="playersA"></div>
-          <div class="row" style="margin-top:10px"><button id="addPlayerA" class="btn-small">+ Add player</button><button id="resetPlayersA" class="btn-small btn-muted">Reset player points</button></div>
+          <div class="row" style="margin-top:10px"><button id="addPlayerA" class="btn-small" type="button">+ Add player</button><button id="resetPlayersA" class="btn-small btn-muted" type="button">Reset player points</button></div>
         </div>
         <div class="team-card" id="teamBBox" style="--team-color:#2474e8">
-          <div class="team-head"><div id="logoB" class="team-initial">B</div><div style="min-width:0;flex:1"><label>Team B name</label><input id="nameB" value="RAMSAGAR RAIDERS"></div></div>
-          <div class="field-grid" style="margin-top:10px"><div><label>Logo image URL (optional)</label><input id="logoUrlB" placeholder="https://..."></div><div><label>Team colour</label><input id="colorB" type="color" value="#2474e8"></div></div>
+          <div class="team-head"><div id="logoB" class="team-initial">B</div><div style="min-width:0;flex:1"><label for="nameB">Team B name</label><input id="nameB" value="RAMSAGAR RAIDERS"></div></div>
+          <div class="field-grid" style="margin-top:10px"><div><label for="logoUrlB">Logo image URL (optional)</label><input id="logoUrlB" placeholder="https://..."></div><div><label for="colorB">Team colour</label><input id="colorB" type="color" value="#2474e8"></div></div>
           <div id="scoreB" class="score-big">0</div><div class="team-controls">
-            <button data-team="B" data-action="raid" class="btn-red">+1 Raid</button><button data-team="B" data-action="bonus" class="btn-gold">+1 Bonus</button>
-            <button data-team="B" data-action="tackle" class="btn-blue">+1 Tackle</button><button data-team="B" data-action="super" class="btn-blue">+2 Super Tackle</button>
-            <button data-team="B" data-action="allout" class="btn-red">+2 All Out</button><button data-team="B" data-action="timeout" class="btn-muted">Take Timeout</button>
+            <button data-team="B" data-action="raid" class="btn-red" type="button">+1 Raid</button><button data-team="B" data-action="bonus" class="btn-gold" type="button">+1 Bonus</button>
+            <button data-team="B" data-action="tackle" class="btn-blue" type="button">+1 Tackle</button><button data-team="B" data-action="super" class="btn-blue" type="button">+2 Super Tackle</button>
+            <button data-team="B" data-action="allout" class="btn-red" type="button">+2 All Out</button><button data-team="B" data-action="timeout" class="btn-muted" type="button">Take Timeout</button>
           </div>
           <div class="row between" style="margin-top:12px"><span class="muted small">Active player for scoring</span><span id="timeoutsB" class="pill">TIMEOUTS 0</span></div>
           <select id="activeB" style="margin-top:7px"></select>
           <div class="player-list" id="playersB"></div>
-          <div class="row" style="margin-top:10px"><button id="addPlayerB" class="btn-small">+ Add player</button><button id="resetPlayersB" class="btn-small btn-muted">Reset player points</button></div>
+          <div class="row" style="margin-top:10px"><button id="addPlayerB" class="btn-small" type="button">+ Add player</button><button id="resetPlayersB" class="btn-small btn-muted" type="button">Reset player points</button></div>
         </div>
       </section>
       <section class="panel">
         <div class="panel-head"><h2 class="section-title">Match clock</h2><span id="halfPill" class="pill">1ST HALF</span></div>
         <div class="grid-2">
-          <div class="clock-card"><div class="muted small">MATCH TIME</div><div id="matchClock" class="clock">20:00</div><div class="clock-actions"><button id="matchStart"<div style="margin-top:12px">
-  <label for="matchMinutes">Total match time (minutes)</label>
-  <input id="matchMinutes" type="number" min="1" max="120" value="20">
-  <button id="setMatchDuration" class="btn-gold">Set Match Time</button>
-</div>
-<div style="margin-top:12px">
-  <label for="remainingTime">Remaining time (MM:SS)</label>
-  <input id="remainingTime" type="text" inputmode="numeric" placeholder="05:30" value="20:00">
-  <button id="setRemainingTime" class="btn-gold">Set Remaining Time</button>
-</div> class="btn-green">Start</button><button id="matchPause" class="btn-muted">Pause</button><button id="matchReset" class="btn-muted">Reset 20:00</button></div></div>
-          <div class="clock-card"><div class="muted small">RAID TIMER</div><div id="raidClock" class="clock">00:30</div><div class="clock-actions"><button id="raidStart" class="btn-green">Start raid</button><button id="raidPause" class="btn-muted">Pause</button><button id="raidReset" class="btn-muted">Reset 30s</button></div></div>
+          <div class="clock-card">
+            <div class="muted small">MATCH TIME</div>
+            <div id="matchClock" class="clock">20:00</div>
+            <div class="clock-actions"><button id="matchStart" class="btn-green" type="button">Start</button><button id="matchPause" class="btn-muted" type="button">Pause</button><button id="matchReset" class="btn-muted" type="button">Reset</button></div>
+            <div style="margin-top:12px">
+              <label for="matchMinutes">Total match time (minutes)</label>
+              <input id="matchMinutes" type="number" min="1" max="120" value="20">
+              <button id="setMatchDuration" class="btn-gold" type="button">Set Match Time</button>
+            </div>
+            <div style="margin-top:12px">
+              <label for="remainingTime">Remaining time (MM:SS)</label>
+              <input id="remainingTime" type="text" inputmode="numeric" placeholder="05:30" value="20:00">
+              <button id="setRemainingTime" class="btn-gold" type="button">Set Remaining Time</button>
+            </div>
+          </div>
+          <div class="clock-card"><div class="muted small">RAID TIMER</div><div id="raidClock" class="clock">00:30</div><div class="clock-actions"><button id="raidStart" class="btn-green" type="button">Start raid</button><button id="raidPause" class="btn-muted" type="button">Pause</button><button id="raidReset" class="btn-muted" type="button">Reset 30s</button></div></div>
         </div>
-        <div class="row" style="justify-content:center;flex-wrap:wrap;margin-top:14px"><button id="halfBtn" class="btn-gold">Switch Half</button><button id="swapTeamsBtn" class="btn-muted">Swap Teams</button><button id="statusBtn" class="btn-muted">Mark Match LIVE</button><button id="undoBtn" class="btn-muted">↶ Undo last action</button><button id="resetMatchBtn" class="btn-red">Reset scores & clock</button></div>
+        <div class="row" style="justify-content:center;flex-wrap:wrap;margin-top:14px"><button id="halfBtn" class="btn-gold" type="button">Switch Half</button><button id="swapTeamsBtn" class="btn-muted" type="button">Swap Teams</button><button id="statusBtn" class="btn-muted" type="button">Mark Match LIVE</button><button id="undoBtn" class="btn-muted" type="button">↶ Undo last action</button><button id="resetMatchBtn" class="btn-red" type="button">Reset scores & clock</button></div>
         <p class="help">Standard defaults: raid/bonus/tackle = 1 point; super tackle = 2; all-out = 2. Please verify local tournament rules before using. Each scoring action adds points to the selected active player.</p>
       </section>
       <section class="panel"><div class="panel-head"><h2 class="section-title">Action history</h2><span id="historyCount" class="pill">0 ACTIONS</span></div><div id="historyList" class="history-list"><p class="muted small">No actions yet.</p></div></section>
-      <section class="panel"><h2 class="section-title">Overlay link</h2><p class="help">Open this link on the streaming phone and add it as a Web Browser/Web Overlay source. The page background is transparent.</p><div class="row"><input id="overlayLink" readonly><button id="copyOverlayBtn" class="btn-gold">Copy</button></div><p id="adminStatus" class="status-line"></p></section>
+      <section class="panel"><h2 class="section-title">Overlay link</h2><p class="help">Open this link on the streaming phone and add it as a Web Browser/Web Overlay source. The page background is transparent.</p><div class="row"><input id="overlayLink" readonly><button id="copyOverlayBtn" class="btn-gold" type="button">Copy</button></div><p id="adminStatus" class="status-line"></p></section>
     </div>
   </main>
   <script type="module" src="admin.js"></script>
