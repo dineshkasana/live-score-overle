@@ -58,7 +58,16 @@
       <section class="panel">
         <div class="panel-head"><h2 class="section-title">Match clock</h2><span id="halfPill" class="pill">1ST HALF</span></div>
         <div class="grid-2">
-          <div class="clock-card"><div class="muted small">MATCH TIME</div><div id="matchClock" class="clock">20:00</div><div class="clock-actions"><button id="matchStart" class="btn-green">Start</button><button id="matchPause" class="btn-muted">Pause</button><button id="matchReset" class="btn-muted">Reset 20:00</button></div></div>
+          <div class="clock-card"><div class="muted small">MATCH TIME</div><div id="matchClock" class="clock">20:00</div><div class="clock-actions"><button id="matchStart"<div style="margin-top:12px">
+  <label for="matchMinutes">Total match time (minutes)</label>
+  <input id="matchMinutes" type="number" min="1" max="120" value="20">
+  <button id="setMatchDuration" class="btn-gold">Set Match Time</button>
+</div>
+<div style="margin-top:12px">
+  <label for="remainingTime">Remaining time (MM:SS)</label>
+  <input id="remainingTime" type="text" inputmode="numeric" placeholder="05:30" value="20:00">
+  <button id="setRemainingTime" class="btn-gold">Set Remaining Time</button>
+</div> class="btn-green">Start</button><button id="matchPause" class="btn-muted">Pause</button><button id="matchReset" class="btn-muted">Reset 20:00</button></div></div>
           <div class="clock-card"><div class="muted small">RAID TIMER</div><div id="raidClock" class="clock">00:30</div><div class="clock-actions"><button id="raidStart" class="btn-green">Start raid</button><button id="raidPause" class="btn-muted">Pause</button><button id="raidReset" class="btn-muted">Reset 30s</button></div></div>
         </div>
         <div class="row" style="justify-content:center;flex-wrap:wrap;margin-top:14px"><button id="halfBtn" class="btn-gold">Switch Half</button><button id="swapTeamsBtn" class="btn-muted">Swap Teams</button><button id="statusBtn" class="btn-muted">Mark Match LIVE</button><button id="undoBtn" class="btn-muted">↶ Undo last action</button><button id="resetMatchBtn" class="btn-red">Reset scores & clock</button></div>
