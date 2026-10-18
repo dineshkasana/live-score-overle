@@ -1,5 +1,4 @@
-import { auth, matchRef, defaultState, isFirebaseConfigured, signInWithEmailAndPassword, signOut, onAuthStateChanged, onValue, set, ref, db, DEFAULT_MATCH_ID, ADMIN_EMAIL } from "./firebase.js";
-
+import { auth, matchRef, defaultState, isFirebaseConfigured, signInWithEmailAndPassword, signOut, onAuthStateChanged, onValue, set, DEFAULT_MATCH_ID, ADMIN_EMAIL } from "./firebase.js";
 const $ = id => document.getElementById(id);
 let state = null, matchId = DEFAULT_MATCH_ID, unsubscribe = null, tickHandle = null, currentUser = null, saving = false;
 const status = (msg, cls="") => { $("adminStatus").textContent = msg; $("adminStatus").className = `status-line ${cls}`; };
@@ -14,16 +13,12 @@ function clockLeft(kind) {
   const started = kind === "raid" ? m.raidStartedAt : m.clockStartedAt;
   return Math.max(0, total - (running ? Math.floor((Date.now() - started)/1000) : 0));
 }
-function snapshot(label) {
-  const copy = clone(state);
-  copy.history = Array.isArray(copy.history) ? copy.history : [];
-  copy.history.push({ label, at: Date.now() });
-  if (copy.history.length > 40) copy.history = copy.history.slice(-40);
-  return copy;
-}
 async function save(next, label, addHistory=true) {
   if (!currentUser) throw new Error("Please sign in first.");
-  if (addHistory && state) { const before = clone(state); before.history = []; next.history = [...(state.history || []), { label, at: Date.now(), before }].slice(-25); }
+  if (addHistory && state) {
+    const before = clone(state); before.history = [];
+    next.history = [...(state.history || []), { label, at: Date.now(), before }].slice(-25);
+  }
   await set(matchRef(matchId), next);
 }
 async function act(team, action) {
@@ -57,7 +52,15 @@ async function loadMatch(id) {
       }
       return;
     }
-    state = snap.val(); render();
+    state = snap.val();
+    // Keep the edit fields synced to the actual saved timer, but don't overwrite while typing.
+    if (document.activeElement !== $("matchMinutes")) {
+      $("matchMinutes").value = String(Math.max(1, Math.round(Number(state.match?.durationSeconds || 1200) / 60)));
+    }
+    if (document.activeElement !== $("remainingTime")) {
+      $("remainingTime").value = safeClock(clockLeft("match"));
+    }
+    render();
     setConnection("CONNECTED", "success");
   }, err => { setConnection("DATABASE ERROR", "error"); status(err.message, "error"); });
 }
@@ -76,7 +79,7 @@ function renderTeam(team) {
   const select = $(`active${team}`); const old = Number(state.activePlayer?.[team] || 0);
   select.innerHTML = (t.players || []).map((p,i)=>`<option value="${i}">${escapeHtml(p.name || `Player ${i+1}`)}</option>`).join("");
   if (t.players?.length) select.value = String(Math.min(old,t.players.length-1));
-  $(`players${team}`).innerHTML = (t.players || []).map((p,i)=>`<div class="player-row ${i===old?"active":""}"><span class="pname">${escapeHtml(p.name || `Player ${i+1}`)} <span class="muted">#${i+1}</span></span><span class="ppts">${Number(p.points||0)} pts <button class="btn-small" data-rename="${team}" data-index="${i}" style="padding:4px 7px">Edit</button></span></div>`).join("");
+  $(`players${team}`).innerHTML = (t.players || []).map((p,i)=>`<div class="player-row ${i===old?"active":""}"><span class="pname">${escapeHtml(p.name || `Player ${i+1}`)} <span class="muted">#${i+1}</span></span><span class="ppts">${Number(p.points||0)} pts <button class="btn-small" data-rename="${team}" data-index="${i}" style="padding:4px 7px" type="button">Edit</button></span></div>`).join("");
 }
 function render() {
   if (!state) return;
@@ -99,7 +102,8 @@ async function updateMeta() {
   next.teams.A.color = $("colorA").value; next.teams.B.color = $("colorB").value;
   await save(next,"Updated match setup",true); status("Match details saved.", "success");
 }
-function clockAction(kind, operation) {
+async function clockAction(kind, operation) {
+  if (!state) return;
   const next = clone(state); const m = next.match; const isRaid = kind==="raid";
   const totalKey = isRaid?"raidSeconds":"clockSeconds", runKey=isRaid?"raidRunning":"clockRunning", startKey=isRaid?"raidStartedAt":"clockStartedAt";
   const defaultSecs = isRaid ? 30 : Number(m.durationSeconds || 1200);
@@ -107,7 +111,44 @@ function clockAction(kind, operation) {
   if(operation==="start"){ if(left<=0) m[totalKey]=defaultSecs; m[runKey]=true; m[startKey]=Date.now(); }
   if(operation==="pause"){ m[totalKey]=left; m[runKey]=false; m[startKey]=0; }
   if(operation==="reset"){ m[totalKey]=defaultSecs; m[runKey]=false; m[startKey]=0; }
-  save(next, `${isRaid?"Raid timer":"Match clock"} ${operation}`, true).catch(e=>status(e.message,"error"));
+  try { await save(next, `${isRaid?"Raid timer":"Match clock"} ${operation}`, true); }
+  catch(e) { status(e.message,"error"); }
+}
+async function setMatchDuration() {
+  if (!state) return;
+  const minutes = Number($("matchMinutes").value);
+  if (!Number.isFinite(minutes) || minutes < 1 || minutes > 120) {
+    status("Enter a match duration from 1 to 120 minutes.", "error"); return;
+  }
+  const seconds = Math.floor(minutes * 60);
+  const next = clone(state);
+  next.match.durationSeconds = seconds;
+  next.match.clockSeconds = seconds;
+  next.match.clockRunning = false;
+  next.match.clockStartedAt = 0;
+  try {
+    await save(next, `Match duration set to ${minutes} minutes`, true);
+    $("remainingTime").value = safeClock(seconds);
+    $("matchClock").textContent = safeClock(seconds);
+    status(`Match time set to ${safeClock(seconds)}. Clock is paused.`, "success");
+  } catch(e) { status(e.message, "error"); }
+}
+async function setRemainingTime() {
+  if (!state) return;
+  const value = $("remainingTime").value.trim();
+  const match = value.match(/^(\d{1,3}):([0-5]\d)$/);
+  if (!match) { status("Enter time as MM:SS, for example 05:30.", "error"); return; }
+  const seconds = Number(match[1]) * 60 + Number(match[2]);
+  if (seconds > 7200) { status("Maximum remaining time is 120 minutes.", "error"); return; }
+  const next = clone(state);
+  next.match.clockSeconds = seconds;
+  next.match.clockRunning = false;
+  next.match.clockStartedAt = 0;
+  try {
+    await save(next, `Remaining match time set to ${value}`, true);
+    $("matchClock").textContent = safeClock(seconds);
+    status(`Remaining time set to ${safeClock(seconds)}. Clock is paused.`, "success");
+  } catch(e) { status(e.message, "error"); }
 }
 $("loginBtn").addEventListener("click", async ()=>{
   $("loginMessage").textContent="Signing in…";
@@ -127,7 +168,14 @@ onAuthStateChanged(auth, async user=>{
     setConnection("AUTHENTICATED","success");
     await loadMatch($("matchId").value || DEFAULT_MATCH_ID);
     if(tickHandle) clearInterval(tickHandle);
-    tickHandle=setInterval(()=>{if(state){$("matchClock").textContent=safeClock(clockLeft("match"));$("raidClock").textContent=safeClock(clockLeft("raid"));}},250);
+    tickHandle=setInterval(()=>{
+      if(state){
+        $("matchClock").textContent=safeClock(clockLeft("match"));
+        $("raidClock").textContent=safeClock(clockLeft("raid"));
+        // Only refresh remaining-time input when user is not editing it.
+        if(document.activeElement !== $("remainingTime")) $("remainingTime").value=safeClock(clockLeft("match"));
+      }
+    },250);
   } else {
     if(unsubscribe){unsubscribe();unsubscribe=null;} state=null;
     setConnection(configured?"SIGNED OUT":"SETUP REQUIRED");
@@ -158,62 +206,8 @@ document.addEventListener("click",async e=>{
 $("matchStart").addEventListener("click",()=>clockAction("match","start"));
 $("matchPause").addEventListener("click",()=>clockAction("match","pause"));
 $("matchReset").addEventListener("click",()=>clockAction("match","reset"));
-$("setMatchDuration").addEventListener("click", async () => {
-  if (!state) return;
-
-  const minutes = Number($("matchMinutes").value);
-
-  if (!Number.isFinite(minutes) || minutes < 1 || minutes > 120) {
-    status("Enter match time from 1 to 120 minutes.", "error");
-    return;
-  }
-
-  const next = clone(state);
-  next.match.durationSeconds = Math.floor(minutes * 60);
-  next.match.clockSeconds = next.match.durationSeconds;
-  next.match.clockRunning = false;
-  next.match.clockStartedAt = 0;
-
-  try {
-    await save(next, `Match duration set to ${minutes} minutes`, true);
-    $("remainingTime").value =
-      `${String(minutes).padStart(2, "0")}:00`;
-    status("Match duration saved.", "success");
-  } catch (e) {
-    status(e.message, "error");
-  }
-});
-
-$("setRemainingTime").addEventListener("click", async () => {
-  if (!state) return;
-
-  const value = $("remainingTime").value.trim();
-  const match = value.match(/^(\d{1,3}):([0-5]\d)$/);
-
-  if (!match) {
-    status("Enter time as MM:SS, for example 05:30.", "error");
-    return;
-  }
-
-  const seconds = Number(match[1]) * 60 + Number(match[2]);
-
-  if (seconds > 7200) {
-    status("Maximum remaining time is 120 minutes.", "error");
-    return;
-  }
-
-  const next = clone(state);
-  next.match.clockSeconds = seconds;
-  next.match.clockRunning = false;
-  next.match.clockStartedAt = 0;
-
-  try {
-    await save(next, `Remaining match time set to ${value}`, true);
-    status("Remaining time saved. Clock is paused.", "success");
-  } catch (e) {
-    status(e.message, "error");
-  }
-});
+$("setMatchDuration").addEventListener("click",setMatchDuration);
+$("setRemainingTime").addEventListener("click",setRemainingTime);
 $("raidStart").addEventListener("click",()=>clockAction("raid","start"));
 $("raidPause").addEventListener("click",()=>clockAction("raid","pause"));
 $("raidReset").addEventListener("click",()=>clockAction("raid","reset"));
