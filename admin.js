@@ -102,7 +102,7 @@ async function updateMeta() {
 function clockAction(kind, operation) {
   const next = clone(state); const m = next.match; const isRaid = kind==="raid";
   const totalKey = isRaid?"raidSeconds":"clockSeconds", runKey=isRaid?"raidRunning":"clockRunning", startKey=isRaid?"raidStartedAt":"clockStartedAt";
-  const defaultSecs = isRaid?30:1200;
+  const defaultSecs = isRaid ? 30 : Number(m.durationSeconds || 1200);
   const left = clockLeft(kind);
   if(operation==="start"){ if(left<=0) m[totalKey]=defaultSecs; m[runKey]=true; m[startKey]=Date.now(); }
   if(operation==="pause"){ m[totalKey]=left; m[runKey]=false; m[startKey]=0; }
@@ -158,6 +158,62 @@ document.addEventListener("click",async e=>{
 $("matchStart").addEventListener("click",()=>clockAction("match","start"));
 $("matchPause").addEventListener("click",()=>clockAction("match","pause"));
 $("matchReset").addEventListener("click",()=>clockAction("match","reset"));
+$("setMatchDuration").addEventListener("click", async () => {
+  if (!state) return;
+
+  const minutes = Number($("matchMinutes").value);
+
+  if (!Number.isFinite(minutes) || minutes < 1 || minutes > 120) {
+    status("Enter match time from 1 to 120 minutes.", "error");
+    return;
+  }
+
+  const next = clone(state);
+  next.match.durationSeconds = Math.floor(minutes * 60);
+  next.match.clockSeconds = next.match.durationSeconds;
+  next.match.clockRunning = false;
+  next.match.clockStartedAt = 0;
+
+  try {
+    await save(next, `Match duration set to ${minutes} minutes`, true);
+    $("remainingTime").value =
+      `${String(minutes).padStart(2, "0")}:00`;
+    status("Match duration saved.", "success");
+  } catch (e) {
+    status(e.message, "error");
+  }
+});
+
+$("setRemainingTime").addEventListener("click", async () => {
+  if (!state) return;
+
+  const value = $("remainingTime").value.trim();
+  const match = value.match(/^(\d{1,3}):([0-5]\d)$/);
+
+  if (!match) {
+    status("Enter time as MM:SS, for example 05:30.", "error");
+    return;
+  }
+
+  const seconds = Number(match[1]) * 60 + Number(match[2]);
+
+  if (seconds > 7200) {
+    status("Maximum remaining time is 120 minutes.", "error");
+    return;
+  }
+
+  const next = clone(state);
+  next.match.clockSeconds = seconds;
+  next.match.clockRunning = false;
+  next.match.clockStartedAt = 0;
+
+  try {
+    await save(next, `Remaining match time set to ${value}`, true);
+    status("Remaining time saved. Clock is paused.", "success");
+  } catch (e) {
+    status(e.message, "error");
+  }
+});
 $("raidStart").addEventListener("click",()=>clockAction("raid","start"));
 $("raidPause").addEventListener("click",()=>clockAction("raid","pause"));
 $("raidReset").addEventListener("click",()=>clockAction("raid","reset"));
